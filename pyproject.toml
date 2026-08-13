@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bayesian-llm-geometry"
+version = "0.1.0"
+description = "Two-stage Bayesian framework for Quantifying the Geometry of Concepts"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "_source*", "scripts*"]
