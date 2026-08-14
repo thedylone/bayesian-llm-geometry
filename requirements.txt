@@ -2,7 +2,6 @@
 
 numpy
 matplotlib
-seaborn
 tqdm
 
 torch==2.6.0+cu126

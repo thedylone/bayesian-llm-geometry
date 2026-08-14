@@ -39,45 +39,51 @@ def dominant_feature_colours(
 def plot_atom_vectors(
     sae: SparseLinearAE, alive_idx, feat_cols, z=None, ax=None
 ):
-    """Plot the atom vectors of a fitted SAE model in 3D."""
+    """Plot the atom vectors of a fitted SAE model."""
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
 
+    ndim = 3 if ax.name == "3d" else 2
     mu, delta = sae.get_manifold(z=z)
+
+    # Set the formatting arguments specific to the axis dimension
+    if ndim == 3:
+        quiver_kwargs = {"arrow_length_ratio": 0.15}
+    else:
+        quiver_kwargs = {"angles": "xy", "scale_units": "xy", "scale": 1}
+
     for k in alive_idx:
+        # Unpack both the positions (mu) and the directions (delta)
         ax.quiver(
-            mu[0],
-            mu[1],
-            mu[2],
-            delta[0, k],
-            delta[1, k],
-            delta[2, k],
+            *mu[:ndim],
+            *delta[:ndim, k],
             color=feat_cols[k],
-            arrow_length_ratio=0.15,
             lw=3,
+            **quiver_kwargs,
         )
+
     return ax
 
 
 def plot_atom_loops(
     scae: SparseCircularAE, alive_idx, feat_cols, z=None, ax=None
 ):
-    """Plot the atom loops of a fitted SCAE model in 3D."""
+    """Plot the atom loops of a fitted SCAE model in 2D or 3D."""
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
 
+    ndim = 3 if ax.name == "3d" else 2
     loops = scae.get_manifold(z=z)
+
     for k in alive_idx:
-        loop = loops[k]  # (num_points, d)
-        ax.plot3D(
-            loop[:, 0],
-            loop[:, 1],
-            loop[:, 2],
+        ax.plot(
+            *loops[k][:, :ndim].T,
             color=feat_cols[k],
             lw=3,
         )
+
     return ax
 
 

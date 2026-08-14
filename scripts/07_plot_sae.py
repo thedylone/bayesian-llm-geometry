@@ -99,6 +99,19 @@ def main():
             short_labels=SHORT_LABELS,
         )
         save_fig(fig, save_dir, "fitted_sae")
+        # Plot fitted SAE in 2D
+        fig, ax = plt.subplots()
+        plot_fitted_sae(
+            data["activations"],
+            ax=ax,
+            labels=data.get("labels"),
+            model=sae,
+            evaluation=results["sae_eval"].item(),
+            alive_threshold=args.alive_threshold,
+            short_labels=SHORT_LABELS,
+        )
+        save_fig(fig, save_dir, "fitted_sae_2d")
+
         # Plot fitted SCAE
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
         fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95)
@@ -113,6 +126,18 @@ def main():
             short_labels=SHORT_LABELS,
         )
         save_fig(fig, save_dir, "fitted_scae")
+        # Plot fitted SCAE in 2D
+        fig, ax = plt.subplots()
+        plot_fitted_sae(
+            data["activations"],
+            ax=ax,
+            labels=data.get("labels"),
+            model=scae,
+            evaluation=results["scae_eval"].item(),
+            alive_threshold=args.alive_threshold,
+            short_labels=SHORT_LABELS,
+        )
+        save_fig(fig, save_dir, "fitted_scae_2d")
 
         # Plot training curves
         fig, axs = plt.subplots(3, 1)
