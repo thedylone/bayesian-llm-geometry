@@ -166,12 +166,16 @@ table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
 caption { caption-side: bottom; text-align: left; font-size: 0.85rem; color: var(--muted); padding: 0.75rem 1rem 0; }
 th, td { padding: 0.6rem 1rem; text-align: left; border-bottom: 1px solid var(--hairline); white-space: nowrap; }
 th { font-family: var(--mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--navy); }
+th .katex, .label .katex, dt .katex { text-transform: none; }
 td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
 th.num { text-align: right; }
 tr:last-child td { border-bottom: 0; }
 .verdict { display: inline-block; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; padding: 0.15rem 0.5rem; border-radius: 999px; }
 .v-c { background: rgba(243,156,18,0.18); color: #8a5300; }
 .v-l { background: rgba(59,130,246,0.14); color: #1d4ed8; }
+.v-x { background: rgba(15,23,42,0.07); color: rgba(15,23,42,0.7); }
+a.ref { font-family: var(--mono); font-size: 0.72rem; text-decoration: none; margin-left: 0.25rem; }
+.fig figcaption em { font-style: italic; }
 .group td { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); background: rgba(184,134,11,0.05); }
 
 /* ---------- figure explorer ---------- */
@@ -252,12 +256,10 @@ footer a { color: var(--navy); }
       <div>
         <p class="label">Research &middot; LLM interpretability</p>
         <h1>Quantifying the Geometry of Concepts: <em>A Two-Stage Bayesian Framework</em> for LLM Interpretability</h1>
-        <p class="authors"><b>Dylan Chua</b></p>
-        <!-- TODO: affiliation / venue -->
-        <p class="affil"><span class="tag" style="background:transparent;border:1px dashed rgba(184,134,11,0.7)">TODO: affiliation &amp; venue</span></p>
+        <p class="authors" style="margin-bottom:1.5rem"><b>Dylan Chua</b></p>
         <div class="buttons">
-          <!-- TODO: link the paper PDF once it is public (paper/ is git-ignored in this repo) -->
-          <span class="btn todo" title="TODO: paper PDF not yet in the repository" aria-disabled="true">
+          <!-- TODO: link docs/paper.pdf once a de-anonymised preprint build is ready to publish -->
+          <span class="btn todo" title="TODO: paper PDF not yet published" aria-disabled="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
             Paper &middot; TODO
           </span>
@@ -292,8 +294,7 @@ footer a { color: var(--navy); }
     <div class="wrap">
       <p class="label">Abstract</p>
       <div class="prose">
-        <p class="todo-note"><strong>TODO</strong>The paper&rsquo;s abstract is not in the repository. The summary below is drawn from the README and code; replace it with the paper abstract.</p>
-        <p>Concepts inside large language models are often assumed to be <em>linear</em> directions, yet some concepts, such as days of the week or months of the year, are periodic and may live on a <em>circle</em>. This project provides tools to systematically evaluate and extract that geometric structure. In the first stage, <strong>Bayesian Model Comparison (BMC)</strong> fits a linear and a circular latent-variable model to a concept&rsquo;s activations with EM and compares them by their Laplace-approximated marginal likelihoods, giving a Bayes factor that quantifies which geometry the data supports. In the second stage, a <strong>Sparse Circular Autoencoder (SCAE)</strong> generalises the standard sparse autoencoder so that each dictionary atom is a two-dimensional circle rather than a single direction, letting periodic features be extracted together with an angle. The framework is validated on synthetic linear and circular data and applied to residual-stream activations of Llama-3-8B-Instruct.</p>
+        <p>The Linear Representation Hypothesis posits that neural networks encode concepts as single directions in activation space, though recent findings suggest certain features occupy circular manifolds. Current evidence for either geometry relies heavily on geometric heuristics, such as PCA or cosine similarity, which lack a rigorous probabilistic foundation. To address this, we introduce a two-stage framework to quantitatively evaluate and extract concept geometry. First, we define competing linear and circular generative models, employing Bayesian Model Comparison (BMC) to evaluate the evidence for each. Second, derived via MAP estimation from the circular model, we introduce the Sparse Circular Autoencoder (SCAE), a novel autoencoder architecture that extracts interpretable, feature-level angles. We apply this framework to Llama-3-8B-Instruct across four concepts (days, months, numbers, and sentiment). BMC decisively detects multi-dimensional curvature in all cases, while the SCAE successfully disambiguates true periodicity (days, months) from helical (numbers) and uninterpretable, artefactual curvature (sentiment). Together, this unified approach demonstrates how geometric heuristics can be replaced by rigorous Bayesian inference and matched architectural extraction.</p>
       </div>
     </div>
   </section>
@@ -302,17 +303,17 @@ footer a { color: var(--navy); }
   <section id="idea">
     <div class="wrap">
       <p class="label">Key idea</p>
-      <h2>Ask the data which shape it is, then extract it in that shape</h2>
+      <h2>Identify the geometry, then extract it with a matched autoencoder</h2>
       <div class="two" style="margin-top:1.5rem">
         <div class="card pad">
           <div class="stage-num">Stage 1</div>
           <h3>Bayesian Model Comparison</h3>
-          <p>Two generative models compete to explain the same activations: a <b>linear</b> model \(M_L\), where a scalar latent moves along a line, and a <b>circular</b> model \(M_C\), where an angle moves around an ellipse. The log Bayes factor \(\log \mathrm{BF} = \log p(\mathbf X\mid M_L) - \log p(\mathbf X\mid M_C)\) trades fit against complexity automatically: positive values favour linear, negative values favour circular.</p>
+          <p>Two generative models compete to explain the same activations: a <b>linear</b> model \(M_L\), where a scalar latent moves along a line, and a <b>circular</b> model \(M_C\), where an angle moves around an ellipse. The log Bayes factor \(\log \mathrm{BF} = \log p(\mathbf X\mid M_L) - \log p(\mathbf X\mid M_C)\) carries an automatic Occam penalty: a more complex model must fit the data substantially better to be preferred.</p>
         </div>
         <div class="card pad">
           <div class="stage-num">Stage 2</div>
           <h3>Sparse Circular Autoencoders</h3>
-          <p>A standard SAE explains each activation as a sparse sum of <em>directions</em>. The SCAE replaces each direction with a 2-D <em>plane</em>: the encoder projects onto each plane, a ReLU on the projection&rsquo;s norm gives a sparse magnitude, and its direction gives an angle \(\theta_k\). Periodic concepts can then be read off as positions on a learned circle.</p>
+          <p>Derived by MAP estimation from the circular model, the SCAE replaces each SAE direction \(\mathbf d_k\) with a 2-D subspace \(\mathbf W_k\). The encoder splits the projection into a sparse magnitude \(a_k\) and a unit direction \(\hat{\boldsymbol\phi}_k\), giving every feature an interpretable angle. Use an SAE for linear concepts and an SCAE for circular ones.</p>
         </div>
       </div>
     </div>
@@ -350,17 +351,22 @@ footer a { color: var(--navy); }
           <h3>Laplace-approximated evidence and the Bayes factor</h3>
           <p>Each model&rsquo;s marginal likelihood is approximated around the EM solution \(\hat{\boldsymbol\theta}\), with weakly informative Gaussian priors on \(\boldsymbol\mu\), \(\mathbf w\) (or \(\mathbf W\)) and \(\log\sigma^2\), and a diagonal Hessian \(\mathbf H\) of the negative log posterior computed by central finite differences:</p>
           <div class="eq">\[ \log p(\mathbf X \mid M) \approx \log p(\mathbf X \mid \hat{\boldsymbol\theta}, M) + \log p(\hat{\boldsymbol\theta}\mid M) + \frac{k}{2}\log 2\pi - \frac12 \log\det \mathbf H \]</div>
-          <div class="eq">\[ \log \mathrm{BF} = \log p(\mathbf X \mid M_L) - \log p(\mathbf X \mid M_C) \quad \begin{cases} > 0 & \text{favours linear } M_L \\ < 0 & \text{favours circular } M_C \end{cases} \]</div>
-          <p class="where">The \(-\tfrac12\log\det\mathbf H\) term is the Occam penalty: the circular model has \(m\) more parameters and must earn them through a better fit. A BIC approximation, \(\log p(\mathbf X\mid\hat{\boldsymbol\theta}) - \tfrac{k}{2}\log N\), is also implemented.</p>
+          <div class="eq">\[ \log \mathrm{BF} = \log p(\mathbf X \mid M_L) - \log p(\mathbf X \mid M_C) \quad \begin{cases} > 1 & \text{favours linear } M_L \\ < -1 & \text{favours circular } M_C \end{cases} \]</div>
+          <p class="where">The \(-\tfrac12\log\det\mathbf H\) term is the Occam penalty: the circular model has \(m\) more parameters and must earn them through a better fit. A BIC approximation, \(\log p(\mathbf X\mid\hat{\boldsymbol\theta}) - \tfrac{k}{2}\log N\), is used as a check that verdicts are not an artefact of the Laplace approximation. Both latent priors are the &ldquo;default&rdquo; ones for their domain (\(\mathcal N(0,1)\) on \(\mathbb R\), \(\mathcal U(0,2\pi)\) on \(S^1\)), so any difference in evidence is driven by geometry, not by the prior family.</p>
         </div>
 
         <div class="method-block">
           <h3>Sparse Circular Autoencoder</h3>
-          <p>For a baseline SAE with \(K\) features, \(\mathbf a = \mathrm{ReLU}\big(\mathbf W_{\text{enc}}(\mathbf x - \boldsymbol\mu) + \mathbf b\big)\) and \(\hat{\mathbf x} = \boldsymbol\mu + \mathbf W_{\text{dec}}\mathbf a\). In the SCAE, each feature \(k\) owns a decoder plane \(\mathbf W_k \in \mathbb R^{m\times 2}\), tied to its encoder:</p>
-          <div class="eq">\[ \mathbf p_k = \mathbf W_k^{\top}(\mathbf x - \boldsymbol\mu) \in \mathbb R^2, \qquad a_k = \mathrm{ReLU}\big(\lVert \mathbf p_k \rVert - b_k\big) \]</div>
-          <div class="eq">\[ \mathbf u_k = \frac{\mathbf p_k}{\lVert \mathbf p_k \rVert}, \qquad \theta_k = \operatorname{atan2}(u_{k,2}, u_{k,1}) \]</div>
-          <div class="eq">\[ \hat{\mathbf x} = \boldsymbol\mu + \sum_{k=1}^{K} a_k\, \mathbf W_k \mathbf u_k, \qquad \mathcal L = \frac{1}{m}\lVert \mathbf x - \hat{\mathbf x} \rVert_2^2 + \lambda \sum_{k=1}^{K} |a_k| \]</div>
-          <p class="where">Each active SCAE feature therefore traces a loop \(\boldsymbol\mu + a_k \mathbf W_k [\cos\theta, \sin\theta]^\top\) in activation space, and \(\theta_k\) reads off where on that loop an input lies. Both autoencoders are initialised from PCA directions (the SCAE takes consecutive pairs of principal components as its initial planes).</p>
+          <p>A standard SAE with \(K\) features is MAP estimation under \(\mathbf x = \boldsymbol\mu + \sum_k a_k \mathbf d_k + \boldsymbol\epsilon\) with a Laplace prior on \(a_k \ge 0\). Replacing each direction with a 2-D subspace and a circular latent \(z_k\) with a uniform prior gives the SCAE objective, identical in form to the SAE loss (MSE + \(\ell_1\)):</p>
+          <div class="eq">\[ \mathbf x = \boldsymbol\mu + \sum_{k=1}^{K} a_k \mathbf W_k \boldsymbol\phi(z_k) + \boldsymbol\epsilon \quad\Longrightarrow\quad \min_{\{a_k, z_k\}} \Big\lVert \mathbf x - \boldsymbol\mu - \sum_k a_k \mathbf W_k \boldsymbol\phi(z_k) \Big\rVert^2 + \lambda \sum_k a_k \]</div>
+          <p>The encoder amortises this optimisation:</p>
+          <div class="eq">\[ \mathbf p_k = \mathbf W_k^{\top}(\mathbf x - \boldsymbol\mu) \in \mathbb R^2, \qquad a_k = \mathrm{ReLU}\big(\lVert \mathbf p_k \rVert - b_k\big), \qquad \hat{\boldsymbol\phi}_k = \frac{\mathbf p_k}{\lVert \mathbf p_k \rVert} \]</div>
+          <div class="eq">\[ \hat{\mathbf x} = \boldsymbol\mu + \sum_{k=1}^{K} a_k\, \mathbf W_k \hat{\boldsymbol\phi}_k \]</div>
+          <figure class="fig" style="margin:1.25rem 0 0">
+            <div class="card" style="padding:0.75rem;background:#fff"><img loading="lazy" src="assets/fig/architecture.webp" width="1680" height="400" alt="Architecture diagram. Top: a standard SAE feature projects x minus mu onto a direction d_k, applies ReLU with bias b_k to get a_k, and decodes as a_k times d_k. Bottom: an SCAE feature projects onto a 2D subspace W_k to get p_k, splits it into its norm (passed through ReLU to give a_k) and its unit direction phi-hat_k, multiplies them and decodes through W_k."></div>
+            <figcaption>Architecture for a single feature \(k\). <em>Top:</em> a standard SAE projects onto a 1-D direction \(\mathbf d_k\) and gates with a ReLU. <em>Bottom:</em> the SCAE projects onto a 2-D subspace \(\mathbf W_k\), then splits into a magnitude (sparsity gate \(a_k\)) and a unit direction (angle \(\hat{\boldsymbol\phi}_k\)), recombined before decoding.</figcaption>
+          </figure>
+          <p class="where" style="margin-top:1rem">The unit vector \(\hat{\boldsymbol\phi}_k\) implicitly encodes the angle \(z_k = \operatorname{atan2}(p_{k,2}, p_{k,1})\), but the angle is never computed explicitly during training: gradients flow through the normalisation and the subspace bases, avoiding the discontinuity of \(\operatorname{atan2}\) at \(\pm\pi\).</p>
         </div>
       </div>
     </div>
@@ -374,10 +380,10 @@ footer a { color: var(--navy); }
       <div class="card pad" style="margin-top:1.5rem">
         <dl class="setup">
           <dt>Model</dt><dd>Meta-Llama-3-8B-Instruct, residual stream at layer 16, taken at the last sub-token of the target word.</dd>
-          <dt>Concepts</dt><dd><b>days</b> (7 labels &times; 15 templates), <b>months</b> (12 &times; 15), <b>numbers</b> 0&ndash;9 (10 &times; 15), and the ordinal controls <b>sentiment</b> (7 &times; 10, &ldquo;terrible&rdquo; &rarr; &ldquo;excellent&rdquo;) and <b>size</b> (6 &times; 15, &ldquo;tiny&rdquo; &rarr; &ldquo;enormous&rdquo;).</dd>
+          <dt>Concepts</dt><dd><b>days</b> (7 labels &times; 15 templates) and <b>months</b> (12 &times; 15), expected circular; <b>numbers</b> 0&ndash;9 (10 &times; 15), expected helical; <b>sentiment</b> (7 &times; 10, &ldquo;terrible&rdquo; &rarr; &ldquo;excellent&rdquo;), expected linear. The repository also includes a <b>size</b> concept (6 &times; 15, &ldquo;tiny&rdquo; &rarr; &ldquo;enormous&rdquo;) that is not reported in the paper.</dd>
           <dt>Preprocessing</dt><dd>Per-template mean subtraction to remove template common-mode variance, then PCA to \(m = 20\) dimensions.</dd>
-          <dt>Synthetic data</dt><dd>\(N = 200\) samples from the linear and circular generative models with \(\sigma^2 = 0.3\), in \(m = 3\) and \(m = 20\) dimensions (seed 7).</dd>
-          <dt>Autoencoders</dt><dd>\(K = 10\) features, 5000 epochs, batch size 64, learning rate \(3\times10^{-3}\), \(\lambda = 0.15\).</dd>
+          <dt>Synthetic data</dt><dd>50 datasets per setting, generated from the linear and circular models with parameters sampled from a standard normal, \(\sigma^2 = 0.3\) and \(N = 200\), in \(m = 3\) (visualisable) and \(m = 20\) (matching the LLM setting).</dd>
+          <dt>Autoencoders</dt><dd>\(K = 10\) features, 5000 epochs, Adam with a cosine schedule, batch size 64, learning rate \(3\times10^{-3}\), \(\lambda = 0.15\) (and \(0.05\) for the LLM sensitivity check). A feature is <em>alive</em> if it activates for more than 10% of samples.</dd>
           <dt>Compute</dt><dd>BMC fitting takes about a minute on a CPU; SAE/SCAE training about two minutes per concept on a single GPU.</dd>
         </dl>
       </div>
@@ -388,37 +394,61 @@ footer a { color: var(--navy); }
   <section id="results">
     <div class="wrap">
       <p class="label">Results</p>
-      <h2>Bayes factors</h2>
-      <p class="lede">Log Bayes factors from the fitted models in the repository&rsquo;s <code>figures/bmc/</code> outputs. Negative values favour the circular model.</p>
+      <h2>Synthetic validation</h2>
+      <p class="lede">On 50 synthetic datasets per setting, BMC favours the ground-truth model every time, while the SAE reconstructs better than the SCAE every time, even on circular data. Reconstruction error cannot identify geometry; that is the motivation for the two-stage approach.</p>
 
       <div class="card table-wrap" style="margin-top:1.5rem">
         <table>
-          <thead><tr><th>Dataset</th><th class="num">\(m\)</th><th class="num">log BF</th><th>Favoured</th></tr></thead>
+          <thead>
+            <tr><th></th><th></th><th class="num" colspan="2" style="text-align:center">BMC</th><th class="num" colspan="3" style="text-align:center">Autoencoder MSE (\(\times10^{-3}\))</th></tr>
+            <tr><th>\(m\)</th><th>Ground truth</th><th class="num">log BF</th><th>Favoured</th><th class="num">SAE</th><th class="num">SCAE</th><th>Favoured</th></tr>
+          </thead>
           <tbody>
-            <tr class="group"><td colspan="4">Synthetic (ground truth known)</td></tr>
-            <tr><td>Circular</td><td class="num">3</td><td class="num">&minus;155.4</td><td><span class="verdict v-c">\(M_C\) circular</span></td></tr>
-            <tr><td>Circular</td><td class="num">20</td><td class="num">&minus;405.2</td><td><span class="verdict v-c">\(M_C\) circular</span></td></tr>
-            <tr><td>Linear</td><td class="num">3</td><td class="num">+42.5</td><td><span class="verdict v-l">\(M_L\) linear</span></td></tr>
-            <tr><td>Linear</td><td class="num">20</td><td class="num">+37.0</td><td><span class="verdict v-l">\(M_L\) linear</span></td></tr>
-            <tr class="group"><td colspan="4">Llama-3-8B-Instruct &middot; layer 16</td></tr>
-            <tr><td>Days of the week</td><td class="num">20</td><td class="num">&minus;222.0</td><td><span class="verdict v-c">\(M_C\) circular</span></td></tr>
-            <tr><td>Months of the year</td><td class="num">20</td><td class="num">&minus;222.4</td><td><span class="verdict v-c">\(M_C\) circular</span></td></tr>
-            <tr><td>Numbers 0&ndash;9</td><td class="num">20</td><td class="num">&minus;166.9</td><td><span class="verdict v-c">\(M_C\) circular</span></td></tr>
-            <tr><td>Sentiment (control)</td><td class="num">20</td><td class="num">&minus;185.1</td><td><span class="verdict v-c">\(M_C\) circular</span></td></tr>
-            <tr><td>Size (control)</td><td class="num">20</td><td class="num">&minus;229.6</td><td><span class="verdict v-c">\(M_C\) circular</span></td></tr>
+            <tr><td>3</td><td>Linear</td><td class="num">+45.8 &plusmn; 1.8</td><td><span class="verdict v-l">Linear &check;</span></td><td class="num">71 &plusmn; 5</td><td class="num">111 &plusmn; 1</td><td><span class="verdict v-l">Linear &check;</span></td></tr>
+            <tr><td>3</td><td>Circular</td><td class="num">&minus;148.5 &plusmn; 1.7</td><td><span class="verdict v-c">Circular &check;</span></td><td class="num">4.9 &plusmn; 0.1</td><td class="num">127 &plusmn; 1</td><td><span class="verdict v-x">Linear &cross;</span></td></tr>
+            <tr><td>20</td><td>Linear</td><td class="num">+58.8 &plusmn; 1.8</td><td><span class="verdict v-l">Linear &check;</span></td><td class="num">138.3 &plusmn; 0.5</td><td class="num">331 &plusmn; 1</td><td><span class="verdict v-l">Linear &check;</span></td></tr>
+            <tr><td>20</td><td>Circular</td><td class="num">&minus;375.2 &plusmn; 3.6</td><td><span class="verdict v-c">Circular &check;</span></td><td class="num">130.8 &plusmn; 0.8</td><td class="num">342 &plusmn; 2</td><td><span class="verdict v-x">Linear &cross;</span></td></tr>
           </tbody>
-          <caption>Single runs, as annotated on the figures. Multi-seed means and standard deviations are produced by <code>scripts/04a_run_bmc_synthetic_multiple.py</code> but are not stored in the repository.</caption>
+          <caption>Table 1 of the paper: mean &plusmn; standard deviation over 50 synthetic datasets. &ldquo;Favoured&rdquo; for the autoencoders is the model with lower MSE (SAE &rarr; linear).</caption>
         </table>
       </div>
 
       <div class="two" style="margin-top:1.5rem">
         <div class="card pad">
-          <h3>Synthetic data: correct model recovered</h3>
-          <p>On all four synthetic datasets the Bayes factor picks the generating model: circular data is strongly favoured as circular, and linear data as linear, in both 3 and 20 dimensions.</p>
+          <h3>BMC recovers the true geometry</h3>
+          <p>On linear data, \(M_C\) fits a degenerate ellipse that collapses onto the line, yet BMC correctly favours \(M_L\) because the Occam penalty punishes the unused second basis direction. On circular data the evidence is decisive, and stronger in \(m = 20\) than \(m = 3\) because \(M_C\)&rsquo;s extra \(m\) parameters incur a larger penalty that only a genuine circle can overcome.</p>
         </div>
         <div class="card pad">
-          <h3>Llama 3: every concept favours a circle</h3>
-          <p>Days, months and numbers all strongly favour \(M_C\). So do the two ordinal controls, sentiment and size, which the configuration lists as expected to be linear. With these settings, a negative Bayes factor alone therefore does not separate periodic from ordinal concepts.</p>
+          <h3>A lower MSE does not imply the right geometry</h3>
+          <p>The SAE spreads activation across many features (\(L_0 \approx 7\) in \(m = 20\)) while the SCAE collapses to a single alive feature (\(L_0 \approx 1\)), because one 2-D feature can absorb enough variance to push the others below the ReLU threshold. The SAE&rsquo;s many cooperating atoms reconstruct better even when the manifold is circular. BMC is needed because it penalises extra parameters instead of rewarding capacity.</p>
+        </div>
+      </div>
+
+      <h2 style="margin-top:3rem">Llama-3-8B-Instruct, layer 16</h2>
+      <div class="card table-wrap" style="margin-top:1.25rem">
+        <table>
+          <thead>
+            <tr><th></th><th></th><th class="num" colspan="3" style="text-align:center">log BF</th><th class="num" colspan="2" style="text-align:center">&Delta;MSE (\(\times10^{-3}\))</th></tr>
+            <tr><th>Concept</th><th>Expected</th><th class="num">Laplace</th><th class="num">BIC</th><th>Favoured</th><th class="num">\(\lambda = 0.15\)</th><th class="num">\(\lambda = 0.05\)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Days</td><td>Circular <a class="ref" href="https://arxiv.org/abs/2405.14860">[Engels+]</a></td><td class="num">&minus;222.0</td><td class="num">&minus;211.8</td><td><span class="verdict v-c">Circular</span></td><td class="num">&minus;68.7</td><td class="num">+8.65</td></tr>
+            <tr><td>Months</td><td>Circular <a class="ref" href="https://arxiv.org/abs/2405.14860">[Engels+]</a></td><td class="num">&minus;222.4</td><td class="num">&minus;210.0</td><td><span class="verdict v-c">Circular</span></td><td class="num">&minus;74.2</td><td class="num">+17.1</td></tr>
+            <tr><td>Numbers 0&ndash;9</td><td>Helical <a class="ref" href="https://transformer-circuits.pub/2025/linebreaks/index.html">[Anthropic]</a></td><td class="num">&minus;166.9</td><td class="num">&minus;151.1</td><td><span class="verdict v-c">Circular</span></td><td class="num">&minus;37.1</td><td class="num">+32.0</td></tr>
+            <tr><td>Sentiment</td><td>Linear <a class="ref" href="https://arxiv.org/abs/2310.15154">[Tigges+]</a></td><td class="num">&minus;185.1</td><td class="num">&minus;169.1</td><td><span class="verdict v-c">Circular</span></td><td class="num">&minus;73.0</td><td class="num">+42.0</td></tr>
+          </tbody>
+          <caption>Table 2 of the paper. &Delta;MSE = MSE(SAE) &minus; MSE(SCAE): positive means the SCAE reconstructs better. \(K = 10\) features, 5000 epochs. The repository&rsquo;s size concept (not in the paper) also favours \(M_C\), with a Laplace log BF of &minus;229.6.</caption>
+        </table>
+      </div>
+
+      <div class="two" style="margin-top:1.5rem">
+        <div class="card pad">
+          <h3>BMC detects curvature everywhere</h3>
+          <p>\(M_C\) is overwhelmingly favoured for all four concepts, matching prior findings for periodic and helical concepts. The circular verdict for sentiment, expected to be linear, is unexpected: in the top three PCs, sentiment shows genuine multi-dimensional spread beyond its dominant linear direction, which the rank-2 \(M_C\) captures and the rank-1 \(M_L\) cannot. BIC gives nearly identical verdicts, so this is not an artefact of the Laplace approximation.</p>
+        </div>
+        <div class="card pad">
+          <h3>Why does BMC favour circles for every concept?</h3>
+          <p><b>Rank-1 vs. rank-2.</b> \(M_L\) has covariance \(\mathbf w\mathbf w^\top + \sigma^2\mathbf I\); \(M_C\) has \(\mathbf W\mathbf W^\top + \sigma^2\mathbf I\). Concepts with variance across several PCs prefer \(M_C\) whenever the better fit outweighs the complexity penalty, so BMC tests dimensionality alongside geometry. <b>Isotropic noise.</b> Real activations are unlikely to have isotropic residuals, and \(M_C\)&rsquo;s extra parameters may absorb structured variance unrelated to circular geometry.</p>
         </div>
       </div>
 
@@ -435,7 +465,7 @@ footer a { color: var(--navy); }
         <figure class="fig"><div class="card"><img loading="lazy" src="assets/fig/bmc_months.webp" width="720" height="720" alt="Months of the year arranged around a ring; log BF = -222.4."></div><figcaption><b>Months</b></figcaption></figure>
         <figure class="fig"><div class="card"><img loading="lazy" src="assets/fig/bmc_numbers.webp" width="720" height="720" alt="Digits 0 to 9 arranged along an arc; log BF = -166.9."></div><figcaption><b>Numbers</b></figcaption></figure>
         <figure class="fig"><div class="card"><img loading="lazy" src="assets/fig/bmc_sentiment.webp" width="720" height="720" alt="Sentiment words with fitted circle and line; log BF = -185.1."></div><figcaption><b>Sentiment</b></figcaption></figure>
-        <figure class="fig"><div class="card"><img loading="lazy" src="assets/fig/bmc_size.webp" width="720" height="720" alt="Size words with fitted circle and line; log BF = -229.6."></div><figcaption><b>Size</b></figcaption></figure>
+        <figure class="fig"><div class="card"><img loading="lazy" src="assets/fig/bmc_size.webp" width="720" height="720" alt="Size words with fitted circle and line; log BF = -229.6."></div><figcaption><b>Size</b>Repository only; not in the paper.</figcaption></figure>
       </div>
     </div>
   </section>
@@ -443,15 +473,15 @@ footer a { color: var(--navy); }
   <section id="scae">
     <div class="wrap">
       <p class="label">Results &middot; Stage 2</p>
-      <h2>Extracting periodic features with SCAEs</h2>
-      <p class="lede">Choose a concept to compare the standard SAE&rsquo;s directions with the SCAE&rsquo;s learned circles, and to see the angle the SCAE assigns to each label.</p>
+      <h2>SCAE angles separate periodic, helical and artefactual curvature</h2>
+      <p class="lede">Where BMC says &ldquo;curved&rdquo; for every concept, the angles recovered by the SCAE tell the cases apart. Choose a concept to compare the SAE&rsquo;s directions with the SCAE&rsquo;s learned circles and the angle it assigns to each label.</p>
 
       <div class="chips" role="tablist" aria-label="Concept" style="margin-top:1.5rem">
         <button class="chip" role="tab" aria-selected="true" data-c="days">Days</button>
         <button class="chip" role="tab" aria-selected="false" data-c="months">Months</button>
         <button class="chip" role="tab" aria-selected="false" data-c="numbers">Numbers</button>
         <button class="chip" role="tab" aria-selected="false" data-c="sentiment">Sentiment</button>
-        <button class="chip" role="tab" aria-selected="false" data-c="size">Size</button>
+        <button class="chip" role="tab" aria-selected="false" data-c="size">Size (repo only)</button>
       </div>
       <div class="explorer-grid" id="explorer" role="tabpanel">
         <figure class="fig"><div class="card"><img data-k="sae" src="assets/fig/sae_days.webp" width="720" height="720" alt="Standard SAE decoder directions for days."></div><figcaption><b>SAE</b>Decoder directions (arrows), one per active feature.</figcaption></figure>
@@ -460,33 +490,39 @@ footer a { color: var(--navy); }
         <figure class="fig"><div class="card"><img data-k="strip" src="assets/fig/strip_days.webp" width="720" height="720" alt="Strip plot of SCAE angles per label for days."></div><figcaption><b>Angle by label</b>Ordered by the concept&rsquo;s natural order.</figcaption></figure>
       </div>
 
-      <div class="two" style="margin-top:1.75rem">
+      <div class="three" style="margin-top:1.75rem">
         <div class="card pad">
-          <h3>Angles follow cyclic order</h3>
-          <p>For <b>days</b>, the SCAE angle increases monotonically from Monday to Sunday around the circle. For <b>months</b>, angles increase from January to July, wrap past \(2\pi\) at August, and increase again through December, preserving the cyclic order up to the wrap point (January and February overlap).</p>
+          <div class="stage-num">Days &middot; Months</div>
+          <h3>Actual periodicity</h3>
+          <p>Angles are well separated, semantically ordered and wrap around the circle.</p>
         </div>
         <div class="card pad">
-          <h3>Reconstruction vs. sparsity</h3>
-          <p>In every run shown the SCAE has higher reconstruction MSE and higher L1 than the standard SAE with the same \(K\) and \(\lambda\) (table below). Its benefit is structural: each feature carries an angle as well as a magnitude, so a periodic concept can be read as a position on a learned circle.</p>
+          <div class="stage-num">Numbers</div>
+          <h3>Helical structure</h3>
+          <p>Angles are monotonic but do not wrap, consistent with the circular component of a helix.</p>
+        </div>
+        <div class="card pad">
+          <div class="stage-num">Sentiment</div>
+          <h3>Non-periodic curvature</h3>
+          <p>Angles lack a clear semantic ordering, consistent with the curvature being artefactual rather than a meaningful circle.</p>
         </div>
       </div>
 
-      <div class="card table-wrap" style="margin-top:1.25rem">
-        <table>
-          <thead><tr><th>Dataset</th><th class="num">SAE MSE</th><th class="num">SAE L1</th><th class="num">SCAE MSE</th><th class="num">SCAE L1</th></tr></thead>
-          <tbody>
-            <tr><td>Synthetic circular, \(m=3\)</td><td class="num">0.01</td><td class="num">0.29</td><td class="num">0.12</td><td class="num">1.49</td></tr>
-            <tr><td>Synthetic circular, \(m=20\)</td><td class="num">0.12</td><td class="num">0.33</td><td class="num">0.35</td><td class="num">0.53</td></tr>
-            <tr><td>Synthetic linear, \(m=3\)</td><td class="num">0.08</td><td class="num">0.20</td><td class="num">0.10</td><td class="num">1.31</td></tr>
-            <tr><td>Synthetic linear, \(m=20\)</td><td class="num">0.13</td><td class="num">0.25</td><td class="num">0.32</td><td class="num">0.50</td></tr>
-            <tr><td>Days</td><td class="num">0.05</td><td class="num">0.23</td><td class="num">0.12</td><td class="num">0.70</td></tr>
-            <tr><td>Months</td><td class="num">0.06</td><td class="num">0.14</td><td class="num">0.14</td><td class="num">0.57</td></tr>
-            <tr><td>Numbers</td><td class="num">0.09</td><td class="num">0.18</td><td class="num">0.13</td><td class="num">0.95</td></tr>
-            <tr><td>Sentiment</td><td class="num">0.12</td><td class="num">0.41</td><td class="num">0.19</td><td class="num">1.60</td></tr>
-            <tr><td>Size</td><td class="num">0.16</td><td class="num">0.40</td><td class="num">0.19</td><td class="num">1.60</td></tr>
-          </tbody>
-          <caption>Evaluation metrics as annotated on <code>figures/sae/*/fitted_*_2d.png</code>: mean squared error and mean per-sample L1 norm of the feature activations.</caption>
-        </table>
+      <div class="card pad" style="margin-top:1.25rem">
+        <h3>Reconstruction depends on \(\lambda\)</h3>
+        <p>At \(\lambda = 0.15\) the SAE achieves lower MSE for every concept, but reducing \(\lambda\) to \(0.05\) restores the SCAE&rsquo;s advantage (Table 2), so the gap reflects \(\lambda\)-sensitivity rather than data complexity: a higher \(\lambda\) leads to over-sparsity and worsens MSE. While SAE features cluster values semantically, they have no notion of periodicity and fracture a concept across several features. The SCAE captures periodic structure in a single feature with an interpretable angle.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONCLUSION ================= -->
+  <section id="conclusion">
+    <div class="wrap">
+      <p class="label">Conclusion</p>
+      <h2>From geometric heuristics to Bayesian evidence</h2>
+      <div class="prose">
+        <p>Framing the linear-vs-circular debate as Bayesian model comparison gives a quantitative criterion where PCA plots and cosine similarities could only suggest one. Applied to LLM activations, BMC favoured circular structure universally, exposing a limitation of the binary model family: the rank-2 circular model readily absorbs generic multi-dimensional structure. Pairing BMC with a matched autoencoder addresses this, since the SCAE-recovered angles discriminate true periodicity (days, months), helical structure (numbers) and non-periodic curvature (sentiment).</p>
+        <p class="where">Future work: expand the generative family to arc, helical or polynomial models and allow flexible noise covariance, to isolate curvature without implying strict periodicity. Explicit manifolds could also enable activation steering, such as smoothly rotating predictions around a periodic feature.</p>
       </div>
     </div>
   </section>
@@ -520,15 +556,15 @@ python scripts/07_plot_sae.py</code></pre>
     <div class="wrap">
       <p class="label">Citation</p>
       <h2>BibTeX</h2>
-      <p class="todo-note"><strong>TODO</strong>Venue and year are not recorded in the repository; update the entry once the paper is public.</p>
       <div class="card bib">
         <button class="copy" type="button" data-copy="bibtex">Copy</button>
-<pre id="bibtex"><code>@misc{chua_geometry_of_concepts,
+<pre id="bibtex"><code>@misc{chua2026geometry,
   title        = {Quantifying the Geometry of Concepts: A Two-Stage
                   Bayesian Framework for LLM Interpretability},
   author       = {Chua, Dylan},
-  howpublished = {\url{https://github.com/thedylone/bayesian-llm-geometry}},
-  note         = {TODO: venue and year}
+  year         = {2026},
+  howpublished = {\url{https://projects.thedylone.com/bayesian-llm-geometry/}},
+  note         = {Code: \url{https://github.com/thedylone/bayesian-llm-geometry}}
 }</code></pre>
       </div>
     </div>
