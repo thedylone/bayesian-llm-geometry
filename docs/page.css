@@ -1,0 +1,62 @@
+/*
+ * page.css: styles specific to the bayesian-llm-geometry page.
+ * Loaded after project-kit.css. Layout and small components only; uses kit tokens,
+ * never restyles .pk-header, .pk-footer, .pk-hero or the h1/h2 type scale.
+ */
+
+/* Hero figures (two square plots side by side) */
+.hero-figs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; max-width: 46rem; }
+
+/* Figure grids */
+.fig-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.fig-grid-5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 960px) {
+    .fig-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fig-grid-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+    .fig-grid-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Card internals */
+.pk-card > .pk-label + .pk-h3 { margin-top: 0.35rem; }
+.pk-card > .pk-h3 + p { margin-top: 0.6rem; }
+
+/* Method sub-blocks */
+.method-block { max-width: var(--prose-width); }
+.method-block > * + * { margin-top: 1rem; }
+.method-block + .method-block { margin-top: 2.5rem; }
+.pk-math .katex { font-size: 1.08em; }
+
+/* Experimental setup definition list */
+.setup { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.6rem 1.5rem; margin: 0; }
+.setup dt { padding-top: 0.2rem; }
+.setup dd { margin: 0; }
+@media (max-width: 560px) {
+    .setup { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+    .setup dd + dt { margin-top: 0.8rem; }
+}
+
+/* KaTeX's hidden MathML is absolutely positioned; anchor it inside the scroll
+   containers so long equations and tables cannot widen the page. */
+.pk-math, .pk-table-wrap { position: relative; }
+
+/* Tables */
+.pk-table caption { caption-side: bottom; text-align: left; padding-top: 0.75rem; font-size: 0.85rem; color: var(--color-text-muted); }
+.pk-table td { white-space: nowrap; }
+.pk-table th .katex { text-transform: none; }
+.pk-table th.group { text-align: center; }
+.ref { font-family: var(--font-mono); font-size: 0.72rem; text-decoration: none; margin-left: 0.25rem; }
+
+/* Model verdict pills */
+.verdict { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.02em; padding: 0.1rem 0.55rem; border-radius: 999px; border: 1px solid transparent; }
+.verdict-c { background: var(--color-gold-soft); border-color: var(--color-gold-line); color: var(--color-navy); }
+.verdict-l { background: transparent; border-color: var(--color-hairline-strong); color: var(--color-navy); }
+.verdict-x { background: transparent; border-color: var(--color-hairline); color: var(--color-text-faint); }
+
+/* Concept explorer */
+.pk-segmented { flex-wrap: wrap; max-width: 100%; }
+
+/* BibTeX block with copy button */
+.bib { position: relative; }
+.bib .copy { position: absolute; top: 0.6rem; right: 0.6rem; padding: 0.35rem 0.75rem; font-size: 0.72rem; background: var(--color-bg); }
